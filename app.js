@@ -3,12 +3,15 @@ const express = require("express");
 const app = express();
 const { getTopics } = require("./controllers/topicsController");
 const { getEndpoints } = require("./controllers/apiController");
+const { getArticleByArticleId } = require("./controllers/articlesController");
 
 app.use(express.json());
 
 app.get("/api", getEndpoints);
 
 app.get("/api/topics", getTopics);
+
+app.get("/api/articles/:article_id", getArticleByArticleId);
 
 app.all("*", (req, res) => {
   res.status(404).send({ error: "Endpoint not found" });
@@ -18,13 +21,13 @@ app.use((err, req, res, next) => {
   if (err.code === "22P02" || err.code === "23502") {
     res.status(400).send({ error: "Bad Request" });
   } else {
-    next();
+    next(err);
   }
 });
 
 app.use((err, req, res, next) => {
-  if (err.message === "topic not found") {
-    res.status(404).send({ error: "NOT found" });
+  if (err.message === "article not found") {
+    res.status(404).send({ error: "Not found" });
   } else {
     next(err);
   }
