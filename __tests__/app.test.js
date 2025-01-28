@@ -3,6 +3,7 @@ const app = require("../app");
 const db = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const testData = require("../db/data/test-data/index");
+const { convertISOToTimestamp } = require("../db/seeds/utils");
 
 const endpointsJson = require("../endpoints.json");
 /* Set up your test imports here */
@@ -50,6 +51,46 @@ describe("404", () => {
       .expect(404)
       .then((response) => {
         expect(response.body.error).toBe("Endpoint not found");
+      });
+  });
+});
+
+describe("GET/api/articles/:article_id", () => {
+  test("GET 200: get articles by id", () => {
+    return request(app)
+      .get("/api/articles/1")
+      .expect(200)
+      .then((response) => {
+        const article = response.body.article;
+        const transformedArticle = convertISOToTimestamp(article);
+        expect(transformedArticle).toEqual({
+          article_id: 1,
+          title: "Living in the shadow of a great man",
+          topic: "mitch",
+          author: "butter_bridge",
+          body: "I find this existence challenging",
+          created_at: 1594325460000,
+          votes: 100,
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        });
+      });
+  });
+
+  test("404 article not found", () => {
+    return request(app)
+      .get("/api/articles/200")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.error).toBe("Not found");
+      });
+  });
+  test("400 id not a number", () => {
+    return request(app)
+      .get("/api/articles/climatechange")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.error).toBe("Bad Request");
       });
   });
 });

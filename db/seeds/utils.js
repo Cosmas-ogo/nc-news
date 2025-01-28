@@ -20,3 +20,14 @@ exports.formatComments = (comments, idLookup) => {
     };
   });
 };
+
+exports.convertISOToTimestamp = (obj) => {
+  const { created_at, ...otherProperties } = obj;
+
+  if (!created_at) return obj; // Return as-is if no created_at field
+
+  return {
+    ...otherProperties,
+    created_at: new Date(created_at).getTime(), // Convert ISO string to timestamp
+  };
+};
