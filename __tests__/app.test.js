@@ -94,3 +94,72 @@ describe("GET/api/articles/:article_id", () => {
       });
   });
 });
+
+describe("GET /api/articles", () => {
+  test("should respond with an array of articles", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then((response) => {
+        const articles = response.body.articles;
+        expect(articles.length).toBe(13);
+        articles.forEach((article) => {
+          expect(typeof article.title).toBe("string");
+          expect(typeof article.topic).toBe("string");
+          expect(typeof article.author).toBe("string");
+          expect(typeof article.article_img_url).toBe("string");
+          expect(typeof article.article_id).toBe("number");
+          expect(typeof article.votes).toBe("number");
+          expect(typeof article.comment_count).toBe("string");
+          expect(typeof article.created_at).toBe("string");
+        });
+      });
+  });
+  test("should be able to order by date in decending order", () => {
+    return request(app)
+      .get("/api/articles?&sort_by=created_at&order=desc")
+      .expect(200)
+      .then((response) => {
+        const body = response.body;
+        expect(body.articles.length).toBe(13);
+        expect(body.articles).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+
+  test("should return an array of articles with correct properties", () => {
+    return request(app)
+      .get("/api/articles?&sort_by=created_at&order=desc")
+      .expect(200)
+      .then((response) => {
+        const body = response.body;
+        body.articles.forEach((article) => {
+          expect(article).toHaveProperty("author");
+          expect(article).toHaveProperty("title");
+          expect(article).toHaveProperty("article_id");
+          expect(article).toHaveProperty("topic");
+          expect(article).toHaveProperty("created_at");
+          expect(article).toHaveProperty("votes");
+          expect(article).toHaveProperty("article_img_url");
+          expect(article).toHaveProperty("comment_count");
+          expect(article).not.toHaveProperty("body");
+        });
+      });
+  });
+
+  test("should return 400 for invalid sort_by value", () => {
+    return request(app)
+      .get("/api/articles?sort_by=invalid_column")
+      .then((response) => {
+        expect(response.status).toBe(400);
+        expect(response.body.error).toBe("invalid sort_by query");
+      });
+  });
+  test("should return 400 for invalid order value", () => {
+    return request(app)
+      .get("/api/articles?order=invalid_order")
+      .then((response) => {
+        expect(response.status).toBe(400);
+        expect(response.body.error).toBe("invalid order query");
+      });
+  });
+});
