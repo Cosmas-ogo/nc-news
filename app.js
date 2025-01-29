@@ -3,7 +3,10 @@ const express = require("express");
 const app = express();
 const { getTopics } = require("./controllers/topicsController");
 const { getEndpoints } = require("./controllers/apiController");
-const { getArticleByArticleId } = require("./controllers/articlesController");
+const {
+  getArticleByArticleId,
+  getArticles,
+} = require("./controllers/articlesController");
 
 app.use(express.json());
 
@@ -12,6 +15,8 @@ app.get("/api", getEndpoints);
 app.get("/api/topics", getTopics);
 
 app.get("/api/articles/:article_id", getArticleByArticleId);
+
+app.get("/api/articles", getArticles);
 
 app.all("*", (req, res) => {
   res.status(404).send({ error: "Endpoint not found" });
@@ -33,7 +38,11 @@ app.use((err, req, res, next) => {
   }
 });
 app.use((err, req, res, next) => {
-  res.status(500).send({ error: "Internal Server Error" });
+  if (err.status) {
+    res.status(err.status).send({ error: err.message });
+  } else {
+    res.status(500).send({ error: "Internal Server Error" });
+  }
 });
 
 module.exports = app;
