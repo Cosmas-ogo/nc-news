@@ -7,7 +7,10 @@ const {
   getArticleByArticleId,
   getArticles,
 } = require("./controllers/articlesController");
-const { getCommentsByArticleId } = require("./controllers/commentsController");
+const {
+  getCommentsByArticleId,
+  postComment,
+} = require("./controllers/commentsController");
 
 app.use(express.json());
 
@@ -18,7 +21,10 @@ app.get("/api/topics", getTopics);
 app.get("/api/articles/:article_id", getArticleByArticleId);
 
 app.get("/api/articles", getArticles);
+
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
+
+app.post("/api/articles/:article_id/comments", postComment);
 
 app.all("*", (req, res) => {
   res.status(404).send({ error: "Endpoint not found" });

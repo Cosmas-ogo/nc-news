@@ -1,5 +1,8 @@
 const comments = require("../db/data/test-data/comments");
-const { fetchCommentsByArticleId } = require("../models/commentsModel");
+const {
+  fetchCommentsByArticleId,
+  addComment,
+} = require("../models/commentsModel");
 
 function getCommentsByArticleId(req, res, next) {
   const { article_id } = req.params;
@@ -15,4 +18,23 @@ function getCommentsByArticleId(req, res, next) {
     .catch(next);
 }
 
-module.exports = { getCommentsByArticleId };
+function postComment(req, res, next) {
+  const { article_id } = req.params;
+  const { username, body } = req.body;
+
+  if (!username || !body) {
+    return next({ status: 400, message: "Missing required fields" });
+  }
+
+  if (isNaN(article_id)) {
+    return next({ status: 400, message: "Invalid article_id" });
+  }
+
+  addComment(article_id, username, body)
+    .then((comment) => {
+      res.status(201).send({ comment });
+    })
+    .catch(next);
+}
+
+module.exports = { getCommentsByArticleId, postComment };
