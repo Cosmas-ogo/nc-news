@@ -1,4 +1,5 @@
 const db = require("../db/connection");
+const format = require("pg-format");
 
 function fetchArticleByArticleId(article_id) {
   return db
@@ -50,4 +51,23 @@ function fetchArticles({ sort_by = "created_at", order = "desc" }) {
   });
 }
 
-module.exports = { fetchArticleByArticleId, fetchArticles };
+function updateArticleVotes(article_id, inc_votes) {
+  if (!inc_votes || typeof inc_votes !== "number") {
+    return Promise.reject({ status: 400, msg: "Invalid vote value" });
+  }
+
+  const queryStr = format(
+    `UPDATE articles SET votes = votes + %L WHERE article_id = %L RETURNING *;`,
+    inc_votes,
+    article_id
+  );
+
+  return db.query(queryStr).then(({ rows }) => {
+    if (rows.length === 0) {
+      return Promise.reject({ status: 404, msg: "Article not found" });
+    }
+    return rows[0];
+  });
+}
+
+module.exports = { fetchArticleByArticleId, fetchArticles, updateArticleVotes };
