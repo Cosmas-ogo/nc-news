@@ -218,3 +218,92 @@ describe("GET /api/articles/:article_id/comments", () => {
       });
   });
 });
+
+describe("POST /api/articles/:article_id/comments", () => {
+  test("should add a comment and return the created comment", () => {
+    const newComment = {
+      username: "butter_bridge",
+      body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+    };
+
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(201)
+      .then((response) => {
+        expect(response.body.comment).toHaveProperty("comment_id");
+        expect(response.body.comment).toHaveProperty("votes");
+        expect(response.body.comment).toHaveProperty("created_at");
+        expect(response.body.comment).toHaveProperty("author", "butter_bridge");
+        expect(response.body.comment).toHaveProperty(
+          "body",
+          "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!"
+        );
+        expect(response.body.comment).toHaveProperty("article_id", 1);
+      });
+  });
+  test("should return 400 if username is missing", () => {
+    const newComment = {
+      body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+    };
+
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.error).toBe("Missing required fields");
+      });
+  });
+
+  test("should return 400 if body is missing", () => {
+    const newComment = { username: "butter_bridge" };
+
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.error).toBe("Missing required fields");
+      });
+  });
+
+  test("should return 400 if article_id is invalid", () => {
+    const newComment = {
+      username: "butter_bridge",
+      body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+    };
+
+    return request(app)
+      .post("/api/articles/invalid/comments")
+      .send(newComment)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.error).toBe("Invalid article_id");
+      });
+  });
+
+  test("should return 404 if article does not exist", () => {
+    const newComment = {
+      username: "butter_bridge",
+      body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+    };
+    return request(app)
+      .post("/api/articles/9999/comments")
+      .send(newComment)
+      .expect(404)
+      .then((response) => {
+        expect(response.body.error).toBe("Article not found");
+      });
+  });
+  test("should return 400 if username does not exist", () => {
+    const newComment = { username: "Mr No Name", body: "User does not exist" };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.error).toBe("Invalid username");
+      });
+  });
+});
