@@ -307,3 +307,54 @@ describe("POST /api/articles/:article_id/comments", () => {
       });
   });
 });
+
+describe("PATCH /api/articles/:article_id", () => {
+  test("should update an article's votes and return the updated article", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .send({ inc_votes: 5 })
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article).toHaveProperty("article_id", 1);
+        expect(body.article).toHaveProperty("votes", expect.any(Number));
+        expect(body.article.votes).toBeGreaterThan(0);
+      });
+  });
+  test("should return 400 when inc_votes is not a number", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .send({ inc_votes: "ten" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid vote value");
+      });
+  });
+  test("should return 400 when inc_votes is missing", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .send({})
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid vote value");
+      });
+  });
+
+  test("should return 404 when article_id does not exist", () => {
+    return request(app)
+      .patch("/api/articles/741943")
+      .send({ inc_votes: 5 })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Article not found");
+      });
+  });
+  test("should return 400 when article_id is invalid", () => {
+    return request(app)
+      .patch("/api/articles/not-an-id")
+      .send({ inc_votes: 5 })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid vote value");
+      });
+  });
+});

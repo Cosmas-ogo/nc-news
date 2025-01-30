@@ -6,6 +6,7 @@ const { getEndpoints } = require("./controllers/apiController");
 const {
   getArticleByArticleId,
   getArticles,
+  patchArticleVotes,
 } = require("./controllers/articlesController");
 const {
   getCommentsByArticleId,
@@ -26,12 +27,27 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 
 app.post("/api/articles/:article_id/comments", postComment);
 
+app.patch("/api/articles/:article_id", patchArticleVotes);
+
 app.all("*", (req, res) => {
   res.status(404).send({ error: "Endpoint not found" });
 });
 
 app.use((err, req, res, next) => {
-  if (err.code === "22P02" || err.code === "23502") {
+  if (err.status && err.msg) {
+    res.status(err.status).send({ msg: err.msg });
+  } else {
+    next(err);
+  }
+});
+app.use((err, req, res, next) => {
+  if (err.code === "22P02") {
+    if (req.method === "PATCH") {
+      res.status(400).send({ msg: "Invalid vote value" });
+    } else {
+      res.status(400).send({ error: "Bad Request" });
+    }
+  } else if (err.code === "23502") {
     res.status(400).send({ error: "Bad Request" });
   } else {
     next(err);
@@ -49,7 +65,7 @@ app.use((err, req, res, next) => {
   if (err.status) {
     res.status(err.status).send({ error: err.message });
   } else {
-    res.status(500).send({ error: "Internal Server Error" });
+    next(err);
   }
 });
 

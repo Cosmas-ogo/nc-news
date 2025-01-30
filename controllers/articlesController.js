@@ -2,6 +2,7 @@ const articles = require("../db/data/test-data/articles");
 const {
   fetchArticleByArticleId,
   fetchArticles,
+  updateArticleVotes,
 } = require("../models/articlesModel");
 
 function getArticleByArticleId(req, res, next) {
@@ -26,4 +27,17 @@ function getArticles(req, res, next) {
     });
 }
 
-module.exports = { getArticleByArticleId, getArticles };
+function patchArticleVotes(req, res, next) {
+  const { article_id } = req.params;
+  const { inc_votes } = req.body;
+
+  updateArticleVotes(article_id, inc_votes)
+    .then((updatedArticle) => {
+      res.status(200).send({ article: updatedArticle });
+    })
+    .catch((err) => {
+      next(err);
+    });
+}
+
+module.exports = { getArticleByArticleId, getArticles, patchArticleVotes };
