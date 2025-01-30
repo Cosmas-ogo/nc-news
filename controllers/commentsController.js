@@ -2,6 +2,7 @@ const comments = require("../db/data/test-data/comments");
 const {
   fetchCommentsByArticleId,
   addComment,
+  removeCommentById,
 } = require("../models/commentsModel");
 
 function getCommentsByArticleId(req, res, next) {
@@ -37,4 +38,16 @@ function postComment(req, res, next) {
     .catch(next);
 }
 
-module.exports = { getCommentsByArticleId, postComment };
+function deleteComment(req, res, next) {
+  const { comment_id } = req.params;
+  if (!/^\d+$/.test(comment_id)) {
+    return res.status(400).send({ error: "Invalid comment ID" });
+  }
+
+  removeCommentById(comment_id)
+    .then(() => {
+      res.status(204).send();
+    })
+    .catch(next);
+}
+module.exports = { getCommentsByArticleId, postComment, deleteComment };
