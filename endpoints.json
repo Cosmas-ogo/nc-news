@@ -104,5 +104,17 @@
     "description": "deletes the given comment by comment_id",
     "queries": [],
     "exampleResponse": "no content"
+  },
+  "GET /api/users": {
+    "description": "Returns an array of all users with username, name, and avatar_url.",
+    "exampleResponse": {
+      "users": [
+        {
+          "username": "johndoe",
+          "name": "John Doe",
+          "avatar_url": "https://example.com/avatar.jpg"
+        }
+      ]
+    }
   }
 }
