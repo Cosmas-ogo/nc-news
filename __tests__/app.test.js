@@ -381,3 +381,37 @@ describe("DELETE /api/comments/:comment_id", () => {
       });
   });
 });
+
+describe("GET /api/users", () => {
+  test("200: should return an array of user objects", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body }) => {
+        console.log(body.users);
+        expect(body.users).toBeInstanceOf(Array);
+        expect(body.users.length).toBeGreaterThan(0);
+        body.users.forEach((user) => {
+          expect(user).toHaveProperty("username");
+          expect(user).toHaveProperty("name");
+          expect(user).toHaveProperty("avatar_url");
+          expect(user).toEqual(
+            expect.objectContaining({
+              username: expect.any(String),
+              name: expect.any(String),
+              avatar_url: expect.any(String),
+            })
+          );
+        });
+      });
+  });
+
+  test("404: should return error for an incorrect route", () => {
+    return request(app)
+      .get("/api/nonexistent")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.error).toBe("Endpoint not found");
+      });
+  });
+});
