@@ -3,6 +3,7 @@ const {
   fetchArticleByArticleId,
   fetchArticles,
   updateArticleVotes,
+  retrieveArticles,
 } = require("../models/articlesModel");
 
 function getArticleByArticleId(req, res, next) {
@@ -40,4 +41,18 @@ function patchArticleVotes(req, res, next) {
     });
 }
 
-module.exports = { getArticleByArticleId, getArticles, patchArticleVotes };
+const collectAllArticles = (req, res, next) => {
+  const { sort_by, order } = req.query;
+
+  retrieveArticles(sort_by, order)
+    .then((articles) => {
+      res.status(200).json({ articles });
+    })
+    .catch(next);
+};
+module.exports = {
+  getArticleByArticleId,
+  getArticles,
+  patchArticleVotes,
+  collectAllArticles,
+};

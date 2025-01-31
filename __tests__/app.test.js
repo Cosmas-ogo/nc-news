@@ -388,7 +388,6 @@ describe("GET /api/users", () => {
       .get("/api/users")
       .expect(200)
       .then(({ body }) => {
-        console.log(body.users);
         expect(body.users).toBeInstanceOf(Array);
         expect(body.users.length).toBeGreaterThan(0);
         body.users.forEach((user) => {
@@ -412,6 +411,55 @@ describe("GET /api/users", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.error).toBe("Endpoint not found");
+      });
+  });
+});
+
+describe("GET /api/articles", () => {
+  test("200: returns an array of articles sorted by default (created_at, desc)", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        expect(Array.isArray(body.articles)).toBe(true);
+        expect(body.articles.length).toBeGreaterThan(0);
+        expect(body.articles).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+
+  test("200: sorts articles by a valid column when sort_by is specified", () => {
+    return request(app)
+      .get("/api/articles?sort_by=title")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toBeSortedBy("title", { descending: true });
+      });
+  });
+
+  test("200: sorts articles in ascending order when order=asc is provided", () => {
+    return request(app)
+      .get("/api/articles?sort_by=article_id&order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toBeSortedBy("article_id", { ascending: true });
+      });
+  });
+
+  test("400: responds with an error when sort_by is invalid", () => {
+    return request(app)
+      .get("/api/articles?sort_by=invalid_column")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.error).toBe("invalid sort_by query");
+      });
+  });
+
+  test("400: responds with an error when order is invalid", () => {
+    return request(app)
+      .get("/api/articles?sort_by=title&order=wrong")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.error).toBe("invalid order query");
       });
   });
 });
