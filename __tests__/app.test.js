@@ -496,3 +496,26 @@ describe("GET /api/articles", () => {
       });
   });
 });
+
+describe("GET /api/articles/:article_id", () => {
+  test("200: returns an article with comment_count", () => {
+    return request(app)
+      .get("/api/articles/1?comment_count=true")
+      .expect(200)
+      .then((response) => {
+        const article = response.body.article;
+        expect(article).toHaveProperty("article_id", 1);
+        expect(article).toHaveProperty("comment_count");
+        expect(typeof article.comment_count).toBe("string");
+      });
+  });
+
+  test("404: responds with 'article not found' when given an invalid article_id", () => {
+    return request(app)
+      .get("/api/articles/9999")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.error).toBe("Not found");
+      });
+  });
+});
