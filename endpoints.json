@@ -116,5 +116,23 @@
         }
       ]
     }
+  },
+  "GET /api/articles(sorting queries)": {
+    "description": "serves an array of all articles sorted (default to the created_at date descending",
+    "queries": ["sort_by", "order"],
+    "exampleResponse": {
+      "articles": [
+        {
+          "author": "cosmas",
+          "title": "The effect of climate change",
+          "article_id": 13,
+          "topic": "enviroment",
+          "created_at": "2020-10-11T11:24:00.000Z",
+          "votes": 40,
+          "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          "comment_count": "0"
+        }
+      ]
+    }
   }
 }

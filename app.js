@@ -7,6 +7,7 @@ const {
   getArticleByArticleId,
   getArticles,
   patchArticleVotes,
+  collectAllArticles,
 } = require("./controllers/articlesController");
 const {
   getCommentsByArticleId,
@@ -34,6 +35,8 @@ app.patch("/api/articles/:article_id", patchArticleVotes);
 app.delete("/api/comments/:comment_id", deleteComment);
 
 app.get("/api/users", getUsers);
+
+app.get("/api/articles", collectAllArticles);
 
 app.all("*", (req, res) => {
   res.status(404).send({ error: "Endpoint not found" });
