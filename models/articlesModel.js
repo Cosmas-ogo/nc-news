@@ -1,5 +1,6 @@
 const db = require("../db/connection");
 const format = require("pg-format");
+const topics = require("../db/data/test-data/topics");
 
 function fetchArticleByArticleId(article_id) {
   return db
@@ -13,7 +14,7 @@ function fetchArticleByArticleId(article_id) {
     });
 }
 
-function fetchArticles({ sort_by = "created_at", order = "desc" }) {
+function fetchArticles({ sort_by = "created_at", order = "desc", topic }) {
   const validSortBy = [
     "created_at",
     "title",
@@ -31,7 +32,7 @@ function fetchArticles({ sort_by = "created_at", order = "desc" }) {
     return Promise.reject({ status: 400, message: "invalid order query" });
   }
 
-  const SQLString = `
+  let SQLString = `
     SELECT 
       articles.author, 
       articles.title, 
@@ -42,11 +43,18 @@ function fetchArticles({ sort_by = "created_at", order = "desc" }) {
       articles.article_img_url, 
       COUNT(comments.comment_id) AS comment_count
     FROM articles
-    LEFT JOIN comments ON articles.article_id = comments.article_id
-    GROUP BY articles.article_id
-    ORDER BY ${sort_by} ${order};`;
+    LEFT JOIN comments ON articles.article_id = comments.article_id`;
 
-  return db.query(SQLString).then(({ rows }) => {
+  const args = [];
+
+  if (topic) {
+    SQLString += " WHERE topic = $1";
+    args.push(topic);
+  }
+
+  SQLString += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order};`;
+
+  return db.query(SQLString, args).then(({ rows }) => {
     return rows;
   });
 }

@@ -463,3 +463,36 @@ describe("GET /api/articles", () => {
       });
   });
 });
+
+describe("GET /api/articles", () => {
+  test("200: Responds with all articles when no topic query is provided", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toBeInstanceOf(Array);
+        expect(body.articles.length).toBeGreaterThan(0);
+      });
+  });
+
+  test("200: Responds with filtered articles when topic query is provided", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toBeInstanceOf(Array);
+        expect(
+          body.articles.every((article) => article.topic === "mitch")
+        ).toBe(true);
+      });
+  });
+
+  test("404: Responds with error if topic does not exist", () => {
+    return request(app)
+      .get("/api/articles?topic=nonexistent")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Topic not found");
+      });
+  });
+});
