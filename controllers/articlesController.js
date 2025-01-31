@@ -8,7 +8,8 @@ const {
 
 function getArticleByArticleId(req, res, next) {
   const { article_id } = req.params;
-  fetchArticleByArticleId(article_id)
+  const comment_count = req.query.comment_count === "true";
+  fetchArticleByArticleId(article_id, comment_count)
     .then((article) => {
       res.status(200).send({ article });
     })

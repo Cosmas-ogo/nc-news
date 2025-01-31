@@ -2,16 +2,38 @@ const db = require("../db/connection");
 const format = require("pg-format");
 const topics = require("../db/data/test-data/topics");
 
-function fetchArticleByArticleId(article_id) {
-  return db
-    .query(`SELECT * FROM articles WHERE article_id = $1`, [article_id])
-    .then(({ rows }) => {
-      if (rows.length === 0) {
-        return Promise.reject({ message: "article not found" });
-      } else {
-        return rows[0];
-      }
-    });
+function fetchArticleByArticleId(article_id, comment_count = false) {
+  let SQLString;
+  if (comment_count) {
+    SQLString = `
+      SELECT articles.*, 
+             COUNT(comments.comment_id) AS comment_count
+      FROM articles
+      LEFT JOIN comments ON comments.article_id = articles.article_id
+      WHERE articles.article_id = $1
+      GROUP BY articles.article_id;
+    `;
+  } else {
+    SQLString = `
+      SELECT * FROM articles WHERE article_id = $1;
+    `;
+  }
+  return db.query(SQLString, [article_id]).then(({ rows }) => {
+    if (rows.length === 0) {
+      return Promise.reject({ message: "Not found", status: 404 });
+    } else {
+      return rows[0];
+    }
+  });
+  // return db
+  //   .query(`SELECT * FROM articles WHERE article_id = $1`, [article_id])
+  //   .then(({ rows }) => {
+  //     if (rows.length === 0) {
+  //       return Promise.reject({ message: "article not found" });
+  //     } else {
+  //       return rows[0];
+  //     }
+  //   });
 }
 
 function fetchArticles({ sort_by = "created_at", order = "desc", topic }) {

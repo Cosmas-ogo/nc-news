@@ -152,5 +152,20 @@
         }
       ]
     }
+  },
+  "GET/api/articles/:article_id(cmment_count)": {
+    "description": "serves an article object with comment_count property",
+    "queries": ["article_id", "comment_count"],
+    "exampleResponse": {
+      "article_id": 10,
+      "title": "The effect of climate change",
+      "topic": "enviroment",
+      "author": "cosmas",
+      "body": "Global warming is real",
+      "created_at": "2020-10-11T11:24:00.000Z",
+      "votes": 50,
+      "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+      "comment_count": "50"
+    }
   }
 }
