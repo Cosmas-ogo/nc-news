@@ -22,18 +22,9 @@ function fetchArticleByArticleId(article_id, comment_count = false) {
     if (rows.length === 0) {
       return Promise.reject({ message: "Not found", status: 404 });
     } else {
-      return rows[0];
+      return rows[0]; // Return the article with or without comment_count
     }
   });
-  // return db
-  //   .query(`SELECT * FROM articles WHERE article_id = $1`, [article_id])
-  //   .then(({ rows }) => {
-  //     if (rows.length === 0) {
-  //       return Promise.reject({ message: "article not found" });
-  //     } else {
-  //       return rows[0];
-  //     }
-  //   });
 }
 
 function fetchArticles({ sort_by = "created_at", order = "desc", topic }) {
@@ -70,8 +61,21 @@ function fetchArticles({ sort_by = "created_at", order = "desc", topic }) {
   const args = [];
 
   if (topic) {
-    SQLString += " WHERE topic = $1";
-    args.push(topic);
+    return db
+      .query(`SELECT * FROM topics WHERE slug = $1`, [topic])
+      .then(({ rows }) => {
+        if (rows.length === 0) {
+          return Promise.reject({ status: 404, msg: "Topic not found" });
+        }
+
+        SQLString += " WHERE topic = $1";
+        args.push(topic);
+
+        SQLString += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order};`;
+
+        return db.query(SQLString, args);
+      })
+      .then(({ rows }) => rows);
   }
 
   SQLString += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order};`;

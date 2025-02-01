@@ -486,10 +486,18 @@ describe("GET /api/articles", () => {
         ).toBe(true);
       });
   });
+  test("200: Responds with an empty array when a valid topic exists but has no articles", () => {
+    return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toEqual([]);
+      });
+  });
 
   test("404: Responds with error if topic does not exist", () => {
     return request(app)
-      .get("/api/articles?topic=nonexistent")
+      .get("/api/articles?topic=climate")
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("Topic not found");
