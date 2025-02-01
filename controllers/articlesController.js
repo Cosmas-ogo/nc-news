@@ -22,9 +22,6 @@ function getArticles(req, res, next) {
   const queries = req.query;
   fetchArticles(queries)
     .then((articles) => {
-      if (articles.length === 0) {
-        return res.status(404).send({ msg: "Topic not found" });
-      }
       res.status(200).send({ articles });
     })
     .catch((err) => {
