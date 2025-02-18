@@ -34,7 +34,7 @@ function fetchArticles({ sort_by = "created_at", order = "desc", topic }) {
     "author",
     "votes",
     "article_id",
-    "topics",
+    "topic",
   ];
   const validOrder = ["asc", "desc"];
 
