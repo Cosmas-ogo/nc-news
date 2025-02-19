@@ -76,7 +76,7 @@
   },
   "POST /api/articles/:article_id/comments": {
     "description": "adds a comment for a specific article ",
-    "queries": ["username", "boby"],
+    "queries": ["username", "body"],
     "exampleResponse": {
       "comment_id": 10,
       "body": "Spread love not hate",
