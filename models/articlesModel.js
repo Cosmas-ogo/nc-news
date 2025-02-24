@@ -35,6 +35,7 @@ function fetchArticles({ sort_by = "created_at", order = "desc", topic }) {
     "votes",
     "article_id",
     "topic",
+    "comment_count",
   ];
   const validOrder = ["asc", "desc"];
 
