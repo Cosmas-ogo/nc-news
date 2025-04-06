@@ -38,7 +38,7 @@ function addComment(article_id, username, body) {
     })
     .then(() => {
       const sql = format(
-        `INSERT INTO comments (article_id, author, body) VALUES (%L) 
+        `INSERT INTO comments (article_id, author, body) VALUES (%L)
            RETURNING *;`,
         [article_id, username, body]
       );

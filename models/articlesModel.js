@@ -1,8 +1,9 @@
 const db = require("../db/connection");
 const format = require("pg-format");
-const topics = require("../db/data/test-data/topics");
+// const topics = require("../db/data/test-data/topics");
 
 function fetchArticleByArticleId(article_id, comment_count = false) {
+  console.log("MODEL");
   let SQLString;
   if (comment_count) {
     SQLString = `
