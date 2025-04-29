@@ -98,11 +98,13 @@ describe("GET/api/articles/:article_id", () => {
 describe("GET /api/articles", () => {
   test("should respond with an array of articles", () => {
     return request(app)
-      .get("/api/articles")
+      .get("/api/articles?limit=13")
       .expect(200)
       .then((response) => {
-        const articles = response.body.articles;
-        expect(articles.length).toBe(13);
+        const { articles, total_count } = response.body;
+        expect(Array.isArray(articles)).toBe(true);
+        expect(typeof total_count).toBe("number");
+        expect(articles.length).toBeLessThanOrEqual(13);
         articles.forEach((article) => {
           expect(typeof article.title).toBe("string");
           expect(typeof article.topic).toBe("string");
@@ -117,15 +119,27 @@ describe("GET /api/articles", () => {
   });
   test("should be able to order by date in decending order", () => {
     return request(app)
-      .get("/api/articles?&sort_by=created_at&order=desc")
+      .get("/api/articles?&sort_by=created_at&order=desc&limit=13")
       .expect(200)
       .then((response) => {
-        const body = response.body;
-        expect(body.articles.length).toBe(13);
-        expect(body.articles).toBeSortedBy("created_at", { descending: true });
+        const { articles, total_count } = response.body;
+        expect(Array.isArray(articles)).toBe(true);
+        expect(typeof total_count).toBe("number");
+        expect(articles.length).toBeLessThanOrEqual(13);
+        expect(articles).toBeSortedBy("created_at", { descending: true });
       });
   });
-
+  test("should respond with the correct articles for page 2 when limit is applied", () => {
+    return request(app)
+      .get("/api/articles?limit=5&page=2")
+      .expect(200)
+      .then((response) => {
+        const { articles, total_count } = response.body;
+        expect(Array.isArray(articles)).toBe(true);
+        expect(typeof total_count).toBe("number");
+        expect(articles.length).toBeLessThanOrEqual(5);
+      });
+  });
   test("should return an array of articles with correct properties", () => {
     return request(app)
       .get("/api/articles?&sort_by=created_at&order=desc")

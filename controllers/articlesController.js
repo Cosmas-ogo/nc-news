@@ -19,16 +19,24 @@ function getArticleByArticleId(req, res, next) {
 }
 
 function getArticles(req, res, next) {
-  const queries = req.query;
+  const { sort_by, order, topic, limit, page } = req.query;
+
+  const queries = {
+    sort_by,
+    order,
+    topic,
+    limit: limit ? Number(limit) : undefined,
+    page: page ? Number(page) : undefined,
+  };
+
   fetchArticles(queries)
-    .then((articles) => {
-      res.status(200).send({ articles });
+    .then(({ articles, total_count }) => {
+      res.status(200).send({ articles, total_count });
     })
     .catch((err) => {
       next(err);
     });
 }
-
 function patchArticleVotes(req, res, next) {
   const { article_id } = req.params;
   const { inc_votes } = req.body;
